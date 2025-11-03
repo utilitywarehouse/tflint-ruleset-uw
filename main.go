@@ -7,11 +7,14 @@ import (
 	"github.com/utilitywarehouse/tflint-ruleset-uw/rules"
 )
 
+// set by goreleaser at build time: https://goreleaser.com/cookbooks/using-main.version/
+var version = "dev"
+
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		RuleSet: &tflint.BuiltinRuleSet{
 			Name:    "template",
-			Version: "0.1.0",
+			Version: version,
 			Rules: []tflint.Rule{
 				rules.NewAwsInstanceExampleTypeRule(),
 				rules.NewAwsS3BucketExampleLifecycleRule(),
