@@ -16,10 +16,6 @@ func main() {
 			Name:    "template",
 			Version: version,
 			Rules: []tflint.Rule{
-				rules.NewAwsInstanceExampleTypeRule(),
-				rules.NewAwsS3BucketExampleLifecycleRule(),
-				rules.NewGoogleComputeSSLPolicyRule(),
-				rules.NewTerraformBackendTypeRule(),
 			},
 		},
 	})
