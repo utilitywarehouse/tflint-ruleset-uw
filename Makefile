@@ -1,3 +1,5 @@
+TFLINT_PLUGIN_DIR ?= ~/.tflint.d/plugins
+
 default: build
 
 test:
@@ -7,5 +9,5 @@ build:
 	go build
 
 install: build
-	mkdir -p ~/.tflint.d/plugins
-	mv ./tflint-ruleset-template ~/.tflint.d/plugins
+	mkdir -p $(TFLINT_PLUGIN_DIR)
+	mv ./tflint-ruleset-uw $(TFLINT_PLUGIN_DIR)
