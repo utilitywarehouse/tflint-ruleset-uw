@@ -1,6 +1,10 @@
 # TFLint UW ruleset
 
-This is a tflint plugin for enforing UW rules
+This is a tflint plugin for UW specific needs.
+
+In most cases, teams can run terraform commands on their local machines, so
+linting is not a security enforcer, but a nicer UI for the rules enforced by
+other security methods (like permission boundaries).
 
 ## Installation
 
@@ -17,8 +21,9 @@ plugin "uw" {
 
 ## Rules
 
-| Name                                                                                    | Description                                         |
-|-----------------------------------------------------------------------------------------|-----------------------------------------------------|
+| Name | Description |
+| --- | --- |
+| [`aws_s3_bucket_missing_name_tag`](rules/aws_s3_bucket_missing_owner_tag.md) | Requires aws s3 buckets to have a "Name" tag |
 | [`aws_security_group_missing_owner_tag`](rules/aws_security_group_missing_owner_tag.md) | Requires aws security groups to have an "owner" tag |
 
 ## Using the plugin locally
@@ -26,6 +31,7 @@ plugin "uw" {
 Clone the repository locally and run the following command:
 
 ```
+$ go test ./...
 $ make install
 ```
 
@@ -36,3 +42,8 @@ plugin "uw" {
   enabled = true
 }
 ```
+
+## Releasing
+
+Releases are created via github. Creating a new release on github will trigger
+a workflow that uses goreleaser to create the required builds and checksums.

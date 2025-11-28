@@ -16,6 +16,7 @@ func main() {
 			Name:    "template",
 			Version: version,
 			Rules: []tflint.Rule{
+				&rules.AwsS3BucketMissingNameTagRule{},
 				&rules.AwsSecurityGroupMissingOwnerTagRule{},
 			},
 		},
