@@ -35,7 +35,7 @@ $ go test ./...
 $ make install
 ```
 
-Add the local (no "source" attribute) version of the plugin to your .tflint.hcl
+Add the local (no version/source attributes) version of the plugin to your .tflint.hcl
 
 ```
 plugin "uw" {
