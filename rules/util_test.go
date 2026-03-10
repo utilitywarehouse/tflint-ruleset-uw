@@ -65,8 +65,11 @@ func Test_GetEnv(t *testing.T) {
 
 			result, err := GetEnv(runner)
 
-			if err == nil && test.WantError {
-				t.Error("Expected an error but got nil")
+			if test.WantError && err == nil {
+				t.Fatal("Expected an error but got nil")
+			}
+			if !test.WantError && err != nil {
+				t.Fatalf("Expected no error but got: %s", err)
 			}
 			if result != test.Expected {
 				t.Errorf("Got %q, want %q", result, test.Expected)
@@ -134,8 +137,17 @@ func Test_GetTeams(t *testing.T) {
 
 			result, err := GetTeams(runner)
 
-			if err == nil && test.WantError {
-				t.Error("Expected an error but got nil")
+			if test.WantError && err == nil {
+				t.Fatal("Expected an error but got nil")
+			}
+			if !test.WantError && err != nil {
+				t.Fatalf("Expected no error but got: %s", err)
+			}
+			if (result == nil) && (test.Expected != nil) {
+				t.Errorf("Got nil result, want non-nil")
+			}
+			if (result != nil) && (test.Expected == nil) {
+				t.Errorf("Got non-nil result, want nil")
 			}
 			if !slices.Equal(result, test.Expected) {
 				t.Errorf("Got %q, want %q", result, test.Expected)
@@ -203,8 +215,81 @@ func Test_GetTeamPrefixes(t *testing.T) {
 
 			result, err := GetTeamPrefixes(runner)
 
-			if err == nil && test.WantError {
-				t.Error("Expected an error but got nil")
+			if test.WantError && err == nil {
+				t.Fatal("Expected an error but got nil")
+			}
+			if !test.WantError && err != nil {
+				t.Fatalf("Expected no error but got: %s", err)
+			}
+			if (result == nil) && (test.Expected != nil) {
+				t.Errorf("Got nil result, want non-nil")
+			}
+			if (result != nil) && (test.Expected == nil) {
+				t.Errorf("Got non-nil result, want nil")
+			}
+			if !slices.Equal(result, test.Expected) {
+				t.Errorf("Got %q, want %q", result, test.Expected)
+			}
+		})
+	}
+}
+
+func Test_GetBucketNameExceptions(t *testing.T) {
+	tests := []struct {
+		Name     string
+		Content  string
+		Expected []string
+	}{
+		{
+			Name: "exceptions have values",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "bucket_name_exceptions_dev" { default = ["legacy", "other"] }
+			`,
+			Expected: []string{"legacy", "other"},
+		},
+		{
+			Name: "environment missing",
+			Content: `
+			variable "bucket_name_exceptions_dev" { default = ["legacy", "other"] }
+			`,
+			Expected: []string{},
+		},
+		{
+			Name: "exceptions missing",
+			Content: `
+			variable "environment" { default = "dev"}
+			`,
+			Expected: []string{},
+		},
+		{
+			Name: "exceptions without default",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "bucket_name_exceptions_dev" {}
+			`,
+			Expected: []string{},
+		},
+		{
+			Name: "exceptions empty",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "bucket_name_exceptions_dev" { default = [] }
+			`,
+			Expected: []string{},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			runner := helper.TestRunner(t, map[string]string{"resource.tf": test.Content})
+
+			result := GetBucketNameExceptions(runner)
+			if (result == nil) && (test.Expected != nil) {
+				t.Errorf("Got nil result, want non-nil")
+			}
+			if (result != nil) && (test.Expected == nil) {
+				t.Errorf("Got non-nil result, want nil")
 			}
 			if !slices.Equal(result, test.Expected) {
 				t.Errorf("Got %q, want %q", result, test.Expected)

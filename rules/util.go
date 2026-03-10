@@ -124,3 +124,17 @@ func GetTeamPrefixes(runner tflint.Runner) ([]string, error) {
 	}
 	return mustGetStringListVar("team_prefixes_"+env, runner)
 }
+
+func GetBucketNameExceptions(runner tflint.Runner) []string {
+	env, err := GetEnv(runner)
+	if err != nil {
+		return []string{}
+	}
+
+	exceptions, err := mustGetStringListVar("bucket_name_exceptions_"+env, runner)
+	if err != nil {
+		return []string{}
+	}
+
+	return exceptions
+}

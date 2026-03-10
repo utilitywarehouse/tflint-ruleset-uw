@@ -71,6 +71,21 @@ func Test_AwsS3BucketPolicy(t *testing.T) {
 			},
 		},
 		{
+			Name: "bucket attribute (aka name) invalid but in exceptions",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
+			variable "bucket_name_exceptions_dev" { default = ["invalid"] }
+			resource "aws_s3_bucket" "bucket" {
+				bucket = "invalid"
+				tags = {
+					Name="any"
+				}
+			}`,
+			Expected: helper.Issues{},
+		},
+		{
 			Name: "tags missing",
 			Content: `
 			variable "environment" { default = "dev"}

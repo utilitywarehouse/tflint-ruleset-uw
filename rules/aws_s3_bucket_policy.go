@@ -2,9 +2,11 @@ package rules
 
 import (
 	"fmt"
+	"slices"
+	"strings"
+
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
-	"strings"
 )
 
 type AwsS3BucketPolicy struct {
@@ -27,7 +29,11 @@ func (r *AwsS3BucketPolicy) Link() string {
 	return ReferenceLink(r.Name())
 }
 
-func (r *AwsS3BucketPolicy) checkName(name, env string, teams []string) error {
+func (r *AwsS3BucketPolicy) checkName(name, env string, teams []string, exceptions []string) error {
+	if slices.Contains(exceptions, name) {
+		return nil
+	}
+
 	for _, team := range teams {
 		prefixWithEnv := fmt.Sprintf("uw-%s-%s-", env, team)
 		prefixWithoutEnv := fmt.Sprintf("uw-%s-", team)
@@ -69,6 +75,7 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 		if err != nil {
 			return err
 		}
+		exceptions := GetBucketNameExceptions(runner)
 
 		bucketAttr, ok := bucket.Body.Attributes["bucket"]
 		if !ok {
@@ -84,7 +91,7 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 		if err != nil {
 			return err
 		}
-		err = r.checkName(name, env, append(teams, team_prefixes...))
+		err = r.checkName(name, env, append(teams, team_prefixes...), exceptions)
 		if err != nil {
 			runner.EmitIssue(
 				r,
