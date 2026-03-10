@@ -50,6 +50,11 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 		if err != nil {
 			return err
 		}
+		teamPrefixes, err := GetTeamPrefixes(runner)
+		if err != nil {
+			return err
+		}
+		allowedOwners := append(teams, teamPrefixes...)
 
 		tagsAttr, ok := securityGroup.Body.Attributes["tags"]
 		if !ok {
@@ -90,7 +95,7 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 			continue
 		}
 
-		if !slices.Contains(teams, value) {
+		if !slices.Contains(allowedOwners, value) {
 			runner.EmitIssue(
 				r,
 				fmt.Sprintf("Security group has an invalid \"owner\" tag; Found \"%s\", but it has to be one of: %v", value, teams),

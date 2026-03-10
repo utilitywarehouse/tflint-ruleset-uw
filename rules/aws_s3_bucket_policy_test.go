@@ -27,13 +27,27 @@ func Test_AwsS3BucketPolicy(t *testing.T) {
 			Expected: helper.Issues{},
 		},
 		{
-			Name: "no issues when complying to policy",
+			Name: "no issues when complying to policy with team name",
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
 			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_s3_bucket" "bucket" {
 				bucket = "uw-dev-teamA-xx"
+				tags = {
+					Name="any"
+				}
+			}`,
+			Expected: helper.Issues{},
+		},
+		{
+			Name: "no issues when complying to policy with team prefix",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
+			resource "aws_s3_bucket" "bucket" {
+				bucket = "uw-dev-tA-xx"
 				tags = {
 					Name="any"
 				}

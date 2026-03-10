@@ -27,13 +27,27 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Expected: helper.Issues{},
 		},
 		{
-			Name: "no issues when valid tag",
+			Name: "no issues when owner is a team",
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_security_group" "sg" {
 				tags = {
 					owner="teamA"
+				}
+			}`,
+			Expected: helper.Issues{},
+		},
+		{
+			Name: "no issues when owner is a team prefix",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
+			resource "aws_security_group" "sg" {
+				tags = {
+					owner="tA"
 				}
 			}`,
 			Expected: helper.Issues{},
@@ -43,6 +57,7 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_security_group" "sg" {
 			}`,
 			Expected: helper.Issues{
@@ -57,6 +72,7 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			variable "security_group_tags" {}
 			resource "aws_security_group" "sg" {
 				tags = var.security_group_tags
@@ -73,6 +89,7 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_security_group" "sg" {
 				tags = {
 					other="tag"
@@ -90,6 +107,7 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_security_group" "sg" {
 				tags = {
 					owner=""
@@ -107,6 +125,7 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			Content: `
 			variable "environment" { default = "dev"}
 			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
 			resource "aws_security_group" "sg" {
 				tags = {
 					owner="invalid"
