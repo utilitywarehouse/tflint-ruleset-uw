@@ -107,6 +107,11 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 		var tags map[string]string
 		err = runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
 		if err != nil {
+			runner.EmitIssue(
+				r,
+				"Bucket tags could not be fully evaluated; ensure the required \"Name\" tag is statically resolvable.",
+				tagsAttr.Expr.Range(),
+			)
 			continue
 		}
 

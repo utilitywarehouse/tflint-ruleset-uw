@@ -64,6 +64,11 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 		var tags map[string]string
 		err = runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
 		if err != nil {
+			runner.EmitIssue(
+				r,
+				"Security group tags could not be fully evaluated; ensure the required \"owner\" tag is statically resolvable.",
+				tagsAttr.Expr.Range(),
+			)
 			continue
 		}
 

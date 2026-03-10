@@ -53,6 +53,22 @@ func Test_AwsSecurityGroupPolicy(t *testing.T) {
 			},
 		},
 		{
+			Name: "tags not statically evaluable",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "security_group_tags" {}
+			resource "aws_security_group" "sg" {
+				tags = var.security_group_tags
+			}`,
+			Expected: helper.Issues{
+				{
+					Rule:    rule,
+					Message: `Security group tags could not be fully evaluated; ensure the required "owner" tag is statically resolvable.`,
+				},
+			},
+		},
+		{
 			Name: "owner tag missing",
 			Content: `
 			variable "environment" { default = "dev"}

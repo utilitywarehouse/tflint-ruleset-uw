@@ -87,6 +87,24 @@ func Test_AwsS3BucketPolicy(t *testing.T) {
 			},
 		},
 		{
+			Name: "tags not statically evaluable",
+			Content: `
+			variable "environment" { default = "dev"}
+			variable "teams_dev" { default = ["teamA", "teamB"] }
+			variable "team_prefixes_dev" { default = ["tA", "tB"] }
+			variable "bucket_tags" {}
+			resource "aws_s3_bucket" "bucket" {
+				bucket = "uw-dev-teamA-name"
+				tags   = var.bucket_tags
+			}`,
+			Expected: helper.Issues{
+				{
+					Rule:    rule,
+					Message: `Bucket tags could not be fully evaluated; ensure the required "Name" tag is statically resolvable.`,
+				},
+			},
+		},
+		{
 			Name: "Name tag missing",
 			Content: `
 			variable "environment" { default = "dev"}
