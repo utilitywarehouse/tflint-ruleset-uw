@@ -1,37 +1,34 @@
 package rules
 
 import (
+	"fmt"
+	"slices"
+
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
-// AwsSecurityGroupMissingOwnerTagRule checks whether a security group has
-// the owner tag, needed by teams to manage the security group
-type AwsSecurityGroupMissingOwnerTagRule struct {
+type AwsSecurityGroupPolicy struct {
 	tflint.DefaultRule
 }
 
-// Name returns the rule name.
-func (r *AwsSecurityGroupMissingOwnerTagRule) Name() string {
-	return "AwsSecurityGroupMissingOwnerTag"
+func (r *AwsSecurityGroupPolicy) Name() string {
+	return "AwsSecurityGroupPolicy"
 }
 
-// Enabled returns whether the rule is enabled by default.
-func (r *AwsSecurityGroupMissingOwnerTagRule) Enabled() bool {
+func (r *AwsSecurityGroupPolicy) Enabled() bool {
 	return true
 }
 
-// Severity returns the rule severity.
-func (r *AwsSecurityGroupMissingOwnerTagRule) Severity() tflint.Severity {
+func (r *AwsSecurityGroupPolicy) Severity() tflint.Severity {
 	return tflint.ERROR
 }
 
-// Link returns the rule reference link.
-func (r *AwsSecurityGroupMissingOwnerTagRule) Link() string {
+func (r *AwsSecurityGroupPolicy) Link() string {
 	return ReferenceLink(r.Name())
 }
 
-func (r *AwsSecurityGroupMissingOwnerTagRule) Check(runner tflint.Runner) error {
+func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 	securityGroups, err := runner.GetResourceContent(
 		"aws_security_group",
 		&hclext.BodySchema{Attributes: []hclext.AttributeSchema{{Name: "tags"}}},
@@ -42,8 +39,20 @@ func (r *AwsSecurityGroupMissingOwnerTagRule) Check(runner tflint.Runner) error 
 	}
 
 	for _, securityGroup := range securityGroups.Blocks {
-		tagsAttr, exists := securityGroup.Body.Attributes["tags"]
-		if !exists {
+		env, err := GetEnv(runner)
+		if err != nil {
+			return err
+		}
+		if env != "dev" && env != "prod" {
+			return nil
+		}
+		teams, err := GetTeams(runner)
+		if err != nil {
+			return err
+		}
+
+		tagsAttr, ok := securityGroup.Body.Attributes["tags"]
+		if !ok {
 			runner.EmitIssue(
 				r,
 				"Security group is missing the required \"owner\" tag.",
@@ -53,7 +62,7 @@ func (r *AwsSecurityGroupMissingOwnerTagRule) Check(runner tflint.Runner) error 
 		}
 
 		var tags map[string]string
-		err := runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
+		err = runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
 		if err != nil {
 			continue
 		}
@@ -71,6 +80,15 @@ func (r *AwsSecurityGroupMissingOwnerTagRule) Check(runner tflint.Runner) error 
 			runner.EmitIssue(
 				r,
 				"Security group has an empty required \"owner\" tag.",
+				tagsAttr.Expr.Range(),
+			)
+			continue
+		}
+
+		if !slices.Contains(teams, value) {
+			runner.EmitIssue(
+				r,
+				fmt.Sprintf("Security group has an invalid \"owner\" tag; Found \"%s\", but it has to be one of: %v", value, teams),
 				tagsAttr.Expr.Range(),
 			)
 		}

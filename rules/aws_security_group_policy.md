@@ -1,6 +1,6 @@
-# aws_security_group_missing_owner_tag
+# aws_security_group_policy
 
-Security groups must have an "owner" tag
+Security groups in `dev` and `prod` must have an "owner" tag with one of the UW teams
 
 ## Why
 Existing security groups can only be edited by the owner team, so this rules

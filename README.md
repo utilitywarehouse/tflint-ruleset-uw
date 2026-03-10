@@ -24,7 +24,7 @@ plugin "uw" {
 | Name | Description |
 | --- | --- |
 | [`aws_s3_bucket_policy`](rules/aws_s3_bucket_policy.md) | Enforces UW S3 bucket naming and required `Name` tag |
-| [`aws_security_group_missing_owner_tag`](rules/aws_security_group_missing_owner_tag.md) | Requires aws security groups to have an "owner" tag |
+| [`aws_security_group_policy`](rules/aws_security_group_policy.md) | Requires aws security groups to have an "owner" tag |
 
 ## Using the plugin locally
 
