@@ -37,25 +37,29 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 	if err != nil {
 		return err
 	}
+	if len(securityGroups.Blocks) == 0 {
+		return nil
+	}
+
+	env, err := GetEnv(runner)
+	if err != nil {
+		return err
+	}
+	if env != "dev" && env != "prod" {
+		return nil
+	}
+
+	teams, err := GetTeams(runner)
+	if err != nil {
+		return err
+	}
+	teamPrefixes, err := GetTeamPrefixes(runner)
+	if err != nil {
+		return err
+	}
+	allowedOwners := append(teams, teamPrefixes...)
 
 	for _, securityGroup := range securityGroups.Blocks {
-		env, err := GetEnv(runner)
-		if err != nil {
-			return err
-		}
-		if env != "dev" && env != "prod" {
-			return nil
-		}
-		teams, err := GetTeams(runner)
-		if err != nil {
-			return err
-		}
-		teamPrefixes, err := GetTeamPrefixes(runner)
-		if err != nil {
-			return err
-		}
-		allowedOwners := append(teams, teamPrefixes...)
-
 		tagsAttr, ok := securityGroup.Body.Attributes["tags"]
 		if !ok {
 			runner.EmitIssue(
