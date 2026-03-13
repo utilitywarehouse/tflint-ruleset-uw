@@ -18,6 +18,7 @@ func main() {
 			Rules: []tflint.Rule{
 				&rules.AwsS3BucketPolicy{},
 				&rules.AwsSecurityGroupPolicy{},
+				&rules.AwsIamPolicy{},
 			},
 		},
 	})
