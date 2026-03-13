@@ -95,7 +95,8 @@ func (r *AwsIamPolicy) Check(runner tflint.Runner) error {
 
 func (r *AwsIamPolicy) checkPathNotSet(runner tflint.Runner, block *hclext.Block, label string) {
 	if attr, ok := block.Body.Attributes["path"]; ok {
-		runner.EmitIssue(
+		mustEmitIssue(
+			runner,
 			r,
 			fmt.Sprintf("%s must not set \"path\".", label),
 			attr.Expr.Range(),
@@ -105,7 +106,8 @@ func (r *AwsIamPolicy) checkPathNotSet(runner tflint.Runner, block *hclext.Block
 
 func (r *AwsIamPolicy) checkPermissionBoundary(runner tflint.Runner, block *hclext.Block, label string, teams []string) {
 	if _, ok := block.Body.Attributes["permissions_boundary"]; !ok {
-		runner.EmitIssue(
+		mustEmitIssue(
+			runner,
 			r,
 			fmt.Sprintf("%s is missing required \"permissions_boundary\"; it must be set to \"arn:aws:iam::${var.account_id}:policy/sys-$team-boundary\", with team being one of: %v.", label, teams),
 			block.DefRange,
@@ -116,7 +118,8 @@ func (r *AwsIamPolicy) checkPermissionBoundary(runner tflint.Runner, block *hcle
 	boundary, err := safelyEvaluateStringAttr(runner, block, "permissions_boundary")
 
 	if err != nil {
-		runner.EmitIssue(
+		mustEmitIssue(
+			runner,
 			r,
 			fmt.Sprintf("%s permissions_boundary must be statically resolvable.", label),
 			block.Body.Attributes["permissions_boundary"].Expr.Range(),
@@ -131,7 +134,8 @@ func (r *AwsIamPolicy) checkPermissionBoundary(runner tflint.Runner, block *hcle
 		}
 	}
 
-	runner.EmitIssue(
+	mustEmitIssue(
+		runner,
 		r,
 		fmt.Sprintf("%s has invalid \"permissions_boundary\" %q; it must be set to \"arn:aws:iam::${var.account_id}:policy/sys-$team-boundary\", with team being one of: %v.", label, boundary, teams),
 		block.Body.Attributes["permissions_boundary"].Expr.Range(),
@@ -141,7 +145,8 @@ func (r *AwsIamPolicy) checkPermissionBoundary(runner tflint.Runner, block *hcle
 func (r *AwsIamPolicy) checkResourceName(runner tflint.Runner, block *hclext.Block, label string, allowedOwners []string) {
 	nameRequirement := fmt.Sprintf("it must start with \"$team-\", with team being one of: %v", allowedOwners)
 	if _, ok := block.Body.Attributes["name"]; !ok {
-		runner.EmitIssue(
+		mustEmitIssue(
+			runner,
 			r,
 			fmt.Sprintf("%s is missing required \"name\"; %s", label, nameRequirement),
 			block.DefRange,
@@ -152,7 +157,8 @@ func (r *AwsIamPolicy) checkResourceName(runner tflint.Runner, block *hclext.Blo
 	name, err := safelyEvaluateStringAttr(runner, block, "name")
 
 	if err != nil {
-		runner.EmitIssue(
+		mustEmitIssue(
+			runner,
 			r,
 			fmt.Sprintf("%s name permissions_boundary must be statically resolvable.", label),
 			block.Body.Attributes["name"].Expr.Range(),
@@ -166,7 +172,8 @@ func (r *AwsIamPolicy) checkResourceName(runner tflint.Runner, block *hclext.Blo
 		}
 	}
 
-	runner.EmitIssue(
+	mustEmitIssue(
+		runner,
 		r,
 		fmt.Sprintf("%s %q is invalid; %s", label, name, nameRequirement),
 		block.Body.Attributes["name"].Expr.Range(),

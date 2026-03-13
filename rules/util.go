@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
@@ -21,6 +22,12 @@ func toSnakeCase(str string) string {
 
 func ReferenceLink(ruleName string) string {
 	return fmt.Sprintf("https://github.com/utilitywarehouse/tflint-ruleset-uw/blob/main/rules/%s.md", toSnakeCase(ruleName))
+}
+
+func mustEmitIssue(runner tflint.Runner, rule tflint.Rule, message string, issueRange hcl.Range) {
+	if err := runner.EmitIssue(rule, message, issueRange); err != nil {
+		panic(fmt.Errorf("failed to emit issue: %w", err))
+	}
 }
 
 func getVar(name string, target any, runner tflint.Runner) error {

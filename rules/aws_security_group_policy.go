@@ -62,7 +62,8 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 	for _, securityGroup := range securityGroups.Blocks {
 		tagsAttr, ok := securityGroup.Body.Attributes["tags"]
 		if !ok {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Security group is missing the required \"owner\" tag.",
 				securityGroup.DefRange,
@@ -73,7 +74,8 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 		var tags map[string]string
 		err = runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
 		if err != nil {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Security group tags could not be fully evaluated; ensure the required \"owner\" tag is statically resolvable.",
 				tagsAttr.Expr.Range(),
@@ -83,7 +85,8 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 
 		value, ok := tags["owner"]
 		if !ok {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Security group is missing the required \"owner\" tag.",
 				tagsAttr.Expr.Range(),
@@ -91,7 +94,8 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 			continue
 		}
 		if value == "" {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Security group has an empty required \"owner\" tag.",
 				tagsAttr.Expr.Range(),
@@ -100,7 +104,8 @@ func (r *AwsSecurityGroupPolicy) Check(runner tflint.Runner) error {
 		}
 
 		if !slices.Contains(allowedOwners, value) {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				fmt.Sprintf("Security group has an invalid \"owner\" tag; Found \"%s\", but it has to be one of: %v", value, teams),
 				tagsAttr.Expr.Range(),

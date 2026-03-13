@@ -79,7 +79,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 
 		bucketAttr, ok := bucket.Body.Attributes["bucket"]
 		if !ok {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Bucket is missing the required \"bucket\" attribute.",
 				bucket.DefRange,
@@ -93,7 +94,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 		}
 		err = r.checkName(name, env, append(teams, team_prefixes...), exceptions)
 		if err != nil {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				err.Error(),
 				bucketAttr.Expr.Range(),
@@ -103,7 +105,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 
 		tagsAttr, ok := bucket.Body.Attributes["tags"]
 		if !ok {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Bucket is missing the required \"Name\" tag.",
 				bucket.DefRange,
@@ -114,7 +117,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 		var tags map[string]string
 		err = runner.EvaluateExpr(tagsAttr.Expr, &tags, nil)
 		if err != nil {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Bucket tags could not be fully evaluated; ensure the required \"Name\" tag is statically resolvable.",
 				tagsAttr.Expr.Range(),
@@ -124,7 +128,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 
 		value, ok := tags["Name"]
 		if !ok {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Bucket is missing the required \"Name\" tag.",
 				tagsAttr.Expr.Range(),
@@ -132,7 +137,8 @@ func (r *AwsS3BucketPolicy) Check(runner tflint.Runner) error {
 			continue
 		}
 		if value == "" {
-			runner.EmitIssue(
+			mustEmitIssue(
+				runner,
 				r,
 				"Bucket has an empty required \"Name\" tag.",
 				tagsAttr.Expr.Range(),
