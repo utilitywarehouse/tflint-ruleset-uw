@@ -13,11 +13,12 @@ var version = "dev"
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		RuleSet: &tflint.BuiltinRuleSet{
-			Name:    "template",
+			Name:    "uw",
 			Version: version,
 			Rules: []tflint.Rule{
-				&rules.AwsS3BucketMissingNameTagRule{},
-				&rules.AwsSecurityGroupMissingOwnerTagRule{},
+				&rules.AwsS3BucketPolicy{},
+				&rules.AwsSecurityGroupPolicy{},
+				&rules.AwsIamPolicy{},
 			},
 		},
 	})

@@ -23,8 +23,9 @@ plugin "uw" {
 
 | Name | Description |
 | --- | --- |
-| [`aws_s3_bucket_missing_name_tag`](rules/aws_s3_bucket_missing_owner_tag.md) | Requires aws s3 buckets to have a "Name" tag |
-| [`aws_security_group_missing_owner_tag`](rules/aws_security_group_missing_owner_tag.md) | Requires aws security groups to have an "owner" tag |
+| [`aws_s3_bucket_policy`](rules/aws_s3_bucket_policy.md) | Enforces UW S3 bucket naming and required `Name` tag |
+| [`aws_security_group_policy`](rules/aws_security_group_policy.md) | Requires aws security groups to have an "owner" tag |
+| [`aws_iam_policy`](rules/aws_iam_policy.md) | Enforces IAM naming and boundary conventions |
 
 ## Using the plugin locally
 
@@ -35,7 +36,7 @@ $ go test ./...
 $ make install
 ```
 
-Add the local (no "source" attribute) version of the plugin to your .tflint.hcl
+Add the local (no version/source attributes) version of the plugin to your .tflint.hcl
 
 ```
 plugin "uw" {
